@@ -2,6 +2,8 @@
 #include <ncursesw/curses.h>
 #include <string>
 #include <algorithm>
+using namespace std;
+
 //klasy figur
 class ChessPiece {
 public:
@@ -88,36 +90,36 @@ class Chessboard {
 public:
     Chessboard() {
         // poczatkowe biale
-        board[0][4] = new King();
-        board[0][3] = new Queen();
-        board[0][2] = new Bishop();
-        board[0][5] = new Bishop();
-        board[0][6] = new Knight();
-        board[0][1] = new Knight();
-        board[0][0] = new Rook();
-        board[0][7] = new Rook();
-        for(int w = 0; w < 8; w++)
-        	board[1][w] = new Pawn();
-        
-        // poczatkowe black
-        board[7][4] = new Kingb();
-        board[7][3] = new Queenb();
-        board[7][2] = new Bishopb();
-        board[7][5] = new Bishopb();
-        board[7][6] = new Knightb();
-        board[7][1] = new Knightb();
-        board[7][0] = new Rookb();
-        board[7][7] = new Rookb();
-        for(int n = 0; n < 8; n++)
-        	board[6][n] = new Pawn();
+        board[0][4] = new Kingb();
+        board[0][3] = new Queenb();
+        board[0][2] = new Bishopb();
+        board[0][5] = new Bishopb();
+        board[0][6] = new Knightb();
+        board[0][1] = new Knightb();
+        board[0][0] = new Rookb();
+        board[0][7] = new Rookb();
+        for (int w = 0; w < 8; w++)
+            board[1][w] = new Pawnb();
 
-        // Inicjalizacja ncurses
+        // poczatkowe black
+        board[7][4] = new King();
+        board[7][3] = new Queen();
+        board[7][2] = new Bishop();
+        board[7][5] = new Bishop();
+        board[7][6] = new Knight();
+        board[7][1] = new Knight();
+        board[7][0] = new Rook();
+        board[7][7] = new Rook();
+        for (int n = 0; n < 8; n++)
+            board[6][n] = new Pawn();
+
+    	//nc init
         initscr();
         raw();
         keypad(stdscr, TRUE);
         noecho();
     }
-// Zwalnianie pamięci
+    // Zwalnianie pamięci
     ~Chessboard() {
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 8; ++j) {
@@ -138,29 +140,56 @@ public:
                     mvprintw(i + 1, j * 2 + 2, "%c", board[i][j]->getSymbol());
                 }
             }
-            mvprintw(i + 1, 17, "| %d", i + 1);
+             mvprintw(i + 1, 17, "| %d", 8 - i);
         }
         //opisanie pol etc.
-        mvprintw(0, 1, " a b c d e f g h");
-        mvprintw(9, 1, "-------------------");
+        mvprintw(10, 1, " a b c d e f g h");
+        mvprintw(9, 1, "-----------------");
 
         refresh();
     }
 
+    void makeMove(const std::string& move) {
+    	// Nieprawidłowa notacja ruchu
+        if (move.length() < 5 or move.length() > 7) {
+            return;
+        }
+        // Pobieranie współrzędnych początkowych i końcowych
+        int fromRow = 8 - (move[1] - '0');
+        int fromCol = move[0] - 'a';
+        int toRow = 8 - (move[4] - '0');
+        int toCol = move[3] - 'a';
+
+        // Sprawdzenie, czy współrzędne są poprawne
+        if (fromRow < 0 || fromRow >= 8 || fromCol < 0 || fromCol >= 8 ||
+            toRow < 0 || toRow >= 8 || toCol < 0 || toCol >= 8) {
+            return;  // Nieprawidłowe współrzędne
+        }
+
+        // Sprawdzenie, czy istnieje figura na pozycji początkowej
+        if (board[fromRow][fromCol] == nullptr) {
+            return;  // Brak figury do przesunięcia
+        }
+        // Wykonanie ruchu - zamiana miejscami pól
+        std::swap(board[fromRow][fromCol], board[toRow][toCol]);
+    }
 private:
-    ChessPiece* board[8][8] = {nullptr};
+    ChessPiece* board[8][8] = { nullptr };
 };
 
 int main() {
     Chessboard chessboard;
-
     while (true) {
         chessboard.draw();
+        char move[6];  // zapisywanie(store bardziej) ruchow (np. a2-a4)
+        getstr(move);
 
-        int ch = getch();
-        if (ch == 'q') {
+        if (move[0] == 'q') {
             break;
         }
+
+        // Wykonywanie ruchu.
+        chessboard.makeMove(move);
     }
 
     return 0;

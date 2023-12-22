@@ -1,4 +1,4 @@
-The Chess Project
+# The Chess Project
 The purpose of this project is to create a working chess game in the terminal, using c++(ncurses).
 
 Getting Started

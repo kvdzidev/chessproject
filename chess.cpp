@@ -148,7 +148,8 @@ public:
 
         refresh();
     }
-
+//poruszanie sie pionkow, aktualnie potrafia poruszac sie z danego miejsca do miejsca, 
+//natomiast nie rozpoznaje figur, nie ma bicia, i nie interesuje go to czy bialy czy czarny
     void makeMove(const std::string& move) {
     	// Nieprawidłowa notacja ruchu
         if (move.length() < 5 or move.length() > 7) {

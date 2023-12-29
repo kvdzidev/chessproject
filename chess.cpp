@@ -3,27 +3,23 @@
 #include <string>
 #include <algorithm>
 using namespace std;
-
 //klasy figur
 class ChessPiece {
 public:
     virtual char getSymbol() const = 0;
 };
-
 class King : public ChessPiece {
 public:
     char getSymbol() const override {
         return 'K';
     }
 };
-
 class Queen : public ChessPiece {
 public:
     char getSymbol() const override {
         return 'Q';
     }
 };
-
 class Bishop : public ChessPiece {
 public:
     char getSymbol() const override {
@@ -100,7 +96,6 @@ public:
         board[0][7] = new Rookb();
         for (int w = 0; w < 8; w++)
             board[1][w] = new Pawnb();
-
         // poczatkowe black
         board[7][4] = new King();
         board[7][3] = new Queen();
@@ -112,7 +107,6 @@ public:
         board[7][7] = new Rook();
         for (int n = 0; n < 8; n++)
             board[6][n] = new Pawn();
-
     	//nc init
         initscr();
         raw();
@@ -128,10 +122,8 @@ public:
         }
         endwin();
     }
-
     void draw() const {
         clear();
-
         // Rysowanie szachownicy
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 8; ++j) {
@@ -160,13 +152,11 @@ public:
         int fromCol = move[0] - 'a';
         int toRow = 8 - (move[4] - '0');
         int toCol = move[3] - 'a';
-
         // Sprawdzenie, czy współrzędne są poprawne
         if (fromRow < 0 || fromRow >= 8 || fromCol < 0 || fromCol >= 8 ||
             toRow < 0 || toRow >= 8 || toCol < 0 || toCol >= 8) {
             return;  // Nieprawidłowe współrzędne
         }
-
         // Sprawdzenie, czy istnieje figura na pozycji początkowej
         if (board[fromRow][fromCol] == nullptr) {
             return;  // Brak figury do przesunięcia
@@ -177,7 +167,6 @@ public:
 private:
     ChessPiece* board[8][8] = { nullptr };
 };
-
 int main() {
     Chessboard chessboard;
     while (true) {
@@ -188,10 +177,8 @@ int main() {
         if (move[0] == 'q') {
             break;
         }
-
         // Wykonywanie ruchu.
         chessboard.makeMove(move);
     }
-
     return 0;
 }

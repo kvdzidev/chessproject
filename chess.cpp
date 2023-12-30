@@ -161,11 +161,56 @@ public:
         if (board[fromRow][fromCol] == nullptr) {
             return;  // Brak figury do przesunięcia
         }
-        // Wykonanie ruchu - zamiana miejscami pól
+        if (dynamic_cast<Bishop*>(board[fromRow][fromCol])) {
+            if (!isValidBishopMove(fromRow, fromCol, toRow, toCol)) {
+                return;
+            }
+        } else if (dynamic_cast<Rook*>(board[fromRow][fromCol])) {
+            if (!isValidRookMove(fromRow, fromCol, toRow, toCol)) {
+                return;
+            }
+        }
         std::swap(board[fromRow][fromCol], board[toRow][toCol]);
     }
 private:
     ChessPiece* board[8][8] = { nullptr };
+    bool isValidBishopMove(int fromRow, int fromCol, int toRow, int toCol) const {
+        if (abs(toRow - fromRow) != abs(toCol - fromCol)) {
+            return false;
+        }
+        int rowDir = (toRow > fromRow) ? 1 : -1;
+        int colDir = (toCol > fromCol) ? 1 : -1;    
+        for (int i = 1; i < abs(toRow - fromRow); ++i) {
+            if (board[fromRow + i * rowDir][fromCol + i * colDir] != nullptr) {
+                return false;
+            }
+        }
+        return true;
+    }
+    bool isValidRookMove(int fromRow, int fromCol, int toRow, int toCol) const {
+        if (fromRow != toRow && fromCol != toCol) {
+            return false;
+        }
+
+        if (fromRow == toRow) {
+            int colDir = (toCol > fromCol) ? 1 : -1;
+
+            for (int i = 1; i < abs(toCol - fromCol); ++i) {
+                if (board[fromRow][fromCol + i * colDir] != nullptr) {
+                    return false;
+                }
+            }
+        } else {
+            int rowDir = (toRow > fromRow) ? 1 : -1;
+
+            for (int i = 1; i < abs(toRow - fromRow); ++i) {
+                if (board[fromRow + i * rowDir][fromCol] != nullptr) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 };
 int main() {
     Chessboard chessboard;
@@ -177,7 +222,6 @@ int main() {
         if (move[0] == 'q') {
             break;
         }
-        // Wykonywanie ruchu.
         chessboard.makeMove(move);
     }
     return 0;

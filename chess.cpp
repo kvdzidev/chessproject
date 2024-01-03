@@ -113,7 +113,7 @@ public:
         keypad(stdscr, TRUE);
         noecho();
     }
-    // Zwalnianie pamieci
+    // Zwalniam se pamiec
     ~Chessboard() {
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 8; ++j) {
@@ -137,7 +137,6 @@ public:
         //opisanie pol etc.
         mvprintw(10, 1, " a b c d e f g h");
         mvprintw(9, 1, "-----------------");
-
         refresh();
     }
 //poruszanie sie pionkow, aktualnie potrafia poruszac sie z danego miejsca do miejsca, 
@@ -178,10 +177,22 @@ public:
 			board[toRow][toCol] = nullptr;
 			std::swap(board[fromRow][fromCol], board[toRow][toCol]);
 		}
-        
     }
 private:
+	//przenies te boole isvalid do classow i potem po prostu wywoluj, bedzie latwiej i szybciej
     ChessPiece* board[8][8] = { nullptr };
+    //bo w teorii rusza sie 2 do przodu w 4 strony do okola siebie, pionowo, poziomo, potem jedno w lewo prawo
+    bool isValidKnightMove(int fromRow, int fromCol, int toRow, int toCol) const {
+    	
+    }
+    //jedno w kazda strone do okola siebie (nie zapomniec o ruchach na ukos)
+    bool isValidKingMove(int fromRow, int fromCol, int toRow, int toCol) const {
+    	
+    }
+    //bishop+rook implementacja 
+    bool isValidQueenMove(int fromRow, int fromCol, int toRow, int toCol) const {
+    	
+    }
     bool isValidBishopMove(int fromRow, int fromCol, int toRow, int toCol) const {
         if (abs(toRow - fromRow) != abs(toCol - fromCol)) {
             return false;
@@ -199,7 +210,6 @@ private:
         if (fromRow != toRow && fromCol != toCol) {
             return false;
         }
-
         if (fromRow == toRow) {
             int colDir = (toCol > fromCol) ? 1 : -1;
             for (int i = 1; i < abs(toCol - fromCol); ++i) {

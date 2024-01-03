@@ -180,7 +180,7 @@ public:
 		}
     }
 private:
-	//przenies te boole isvalid do classow i potem po prostu wywoluj, bedzie latwiej i szybciej
+	//przenies te boole isvalid do classow i potem po prostu wywoluj, bedzie latwiej i szybciej, to chyba jednak nie ma sensu bo bym musial i do bialych i do czarnych (do przemyslenia)
     ChessPiece* board[8][8] = { nullptr };
     //bo w teorii rusza sie 2 do przodu w 4 strony do okola siebie, pionowo, poziomo, potem jedno w lewo prawo
     bool isValidKnightMove(int fromRow, int fromCol, int toRow, int toCol) const {

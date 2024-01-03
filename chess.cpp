@@ -170,11 +170,12 @@ public:
                 return;
             }
         }
-        //wait nie dziala bicie
+        //bicie figur (jeszcze dawanie szacha nie dziala)
         if(board[toRow][toCol] == nullptr){
         	std::swap(board[fromRow][fromCol], board[toRow][toCol]);
 		}else{
-			board[toRow][toCol] == nullptr;
+			delete board[toRow][toCol];
+			board[toRow][toCol] = nullptr;
 			std::swap(board[fromRow][fromCol], board[toRow][toCol]);
 		}
         

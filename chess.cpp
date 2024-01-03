@@ -113,7 +113,7 @@ public:
         keypad(stdscr, TRUE);
         noecho();
     }
-    // Zwalnianie pamięci
+    // Zwalnianie pamieci
     ~Chessboard() {
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 8; ++j) {
@@ -143,23 +143,23 @@ public:
 //poruszanie sie pionkow, aktualnie potrafia poruszac sie z danego miejsca do miejsca, 
 //natomiast nie rozpoznaje figur, nie ma bicia, i nie interesuje go to czy bialy czy czarny
     void makeMove(const std::string& move) {
-    	// Nieprawidłowa notacja ruchu
+    	// Nieprawidlowa notacja ruchu check
         if (move.length() < 5 or move.length() > 7) {
             return;
         }
-        // Pobieranie współrzędnych początkowych i końcowych
+        // poczatkowe i koncowe wspolrzedne
         int fromRow = 8 - (move[1] - '0');
         int fromCol = move[0] - 'a';
         int toRow = 8 - (move[4] - '0');
         int toCol = move[3] - 'a';
-        // Sprawdzenie, czy współrzędne są poprawne
+        // Sprawdzenie, czy wspolrzednie są poprawne
         if (fromRow < 0 || fromRow >= 8 || fromCol < 0 || fromCol >= 8 ||
             toRow < 0 || toRow >= 8 || toCol < 0 || toCol >= 8) {
-            return;  // Nieprawidłowe współrzędne
+            return;  // Nieprawidlowe współrzędne
         }
-        // Sprawdzenie, czy istnieje figura na pozycji początkowej
+        // czy jest figura na poczatku
         if (board[fromRow][fromCol] == nullptr) {
-            return;  // Brak figury do przesunięcia
+            return;  // Brak figury do przesuniecia
         }
         if (dynamic_cast<Bishop*>(board[fromRow][fromCol])) {
             if (!isValidBishopMove(fromRow, fromCol, toRow, toCol)) {
@@ -170,7 +170,14 @@ public:
                 return;
             }
         }
-        std::swap(board[fromRow][fromCol], board[toRow][toCol]);
+        //wait nie dziala bicie
+        if(board[toRow][toCol] == nullptr){
+        	std::swap(board[fromRow][fromCol], board[toRow][toCol]);
+		}else{
+			board[toRow][toCol] == nullptr;
+			std::swap(board[fromRow][fromCol], board[toRow][toCol]);
+		}
+        
     }
 private:
     ChessPiece* board[8][8] = { nullptr };
@@ -194,7 +201,6 @@ private:
 
         if (fromRow == toRow) {
             int colDir = (toCol > fromCol) ? 1 : -1;
-
             for (int i = 1; i < abs(toCol - fromCol); ++i) {
                 if (board[fromRow][fromCol + i * colDir] != nullptr) {
                     return false;
@@ -202,7 +208,6 @@ private:
             }
         } else {
             int rowDir = (toRow > fromRow) ? 1 : -1;
-
             for (int i = 1; i < abs(toRow - fromRow); ++i) {
                 if (board[fromRow + i * rowDir][fromCol] != nullptr) {
                     return false;
@@ -218,7 +223,6 @@ int main() {
         chessboard.draw();
         char move[6];  // zapisywanie(store bardziej) ruchow (np. a2-a4)
         getstr(move);
-
         if (move[0] == 'q') {
             break;
         }

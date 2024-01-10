@@ -3,7 +3,6 @@
 #include <string>
 #include <algorithm>
 using namespace std;
-//klasy figur
 class ChessPiece {
 public:
     virtual char getSymbol() const = 0;
@@ -81,7 +80,6 @@ public:
         return 'p';
     }
 };
-//szachownica - poczatkowe ustawienie figur
 class Chessboard {
 public:
     Chessboard() {
@@ -107,13 +105,12 @@ public:
         board[7][7] = new Rook();
         for (int n = 0; n < 8; n++)
             board[6][n] = new Pawn();
-    	//nc init
         initscr();
         raw();
         keypad(stdscr, TRUE);
         noecho();
     }
-    // Zwalniam se pamiec
+    // zwalnianie memory
     ~Chessboard() {
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 8; ++j) {
@@ -124,7 +121,7 @@ public:
     }
     void draw() const {
         clear();
-        // Rysowanie szachownicy
+        // szachownica |
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 8; ++j) {
                 mvprintw(i + 1, j * 2 + 1, "|");
@@ -134,33 +131,40 @@ public:
             }
              mvprintw(i + 1, 17, "| %d", 8 - i);
         }
-        //opisanie pol etc.
         mvprintw(10, 1, " a b c d e f g h");
         mvprintw(9, 1, "-----------------");
         refresh();
     }
-//poruszanie sie pionkow, aktualnie potrafia poruszac sie z danego miejsca do miejsca, 
-//natomiast nie rozpoznaje figur, nie ma bicia, i nie interesuje go to czy bialy czy czarny
-//trzeba pamietac o tym ze po wykonanym ruchu nie moge juz isc o 2
+
     void makeMove(const std::string& move) {
-    	// Nieprawidlowa notacja ruchu check
-        if (move.length() < 5 or move.length() > 7) {
-            return;
-        }
         // poczatkowe i koncowe wspolrzedne
         int fromRow = 8 - (move[1] - '0');
         int fromCol = move[0] - 'a';
         int toRow = 8 - (move[4] - '0');
         int toCol = move[3] - 'a';
-        // Sprawdzenie, czy wspolrzednie są poprawne
+        if (move == "c" && fromCol == 4 && fromRow == 0 && typeid(*board[fromRow][fromCol]) == typeid(Kingb)) {
+		    // czarne 0-0
+		    std::swap(board[fromRow][fromCol], board[toRow][toCol]);
+		    std::swap(board[fromRow][7], board[fromRow][5]);
+		} else if (move == "cc" && fromCol == 4 && fromRow == 7 && typeid(*board[fromRow][fromCol]) == typeid(King)) {
+		    // biale 0-0
+		    std::swap(board[fromRow][fromCol], board[toRow][toCol]);
+		    std::swap(board[fromRow][7], board[fromRow][5]);
+		} else if (move == "cb" && fromCol == 4 && fromRow == 0 && typeid(*board[fromRow][fromCol]) == typeid(Kingb)) {
+		    // czarne 0-0-0
+		    std::swap(board[fromRow][fromCol], board[toRow][toCol]);
+		    std::swap(board[fromRow][0], board[fromRow][3]);
+		} else if (move == "cbb" && fromCol == 4 && fromRow == 7 && typeid(*board[fromRow][fromCol]) == typeid(King)) {
+		    // biale 0-0-0
+		    std::swap(board[fromRow][fromCol], board[toRow][toCol]);
+		    std::swap(board[fromRow][0], board[fromRow][3]);
+		}
+        // czy wspolrzedne sa poprawne
         if (fromRow < 0 || fromRow >= 8 || fromCol < 0 || fromCol >= 8 ||
             toRow < 0 || toRow >= 8 || toCol < 0 || toCol >= 8) {
-            return;  // Nieprawidlowe współrzędne
+            return;
         }
-        // czy jest figura na poczatku
-        if (board[fromRow][fromCol] == nullptr) {
-            return;  // Brak figury do przesuniecia
-        }
+
         if (dynamic_cast<Bishop*>(board[fromRow][fromCol])) {
             if (!isValidBishopMove(fromRow, fromCol, toRow, toCol)) {
                 return;
@@ -169,30 +173,64 @@ public:
             if (!isValidRookMove(fromRow, fromCol, toRow, toCol)) {
                 return;
             }
+        } else if (dynamic_cast<Pawn*>(board[fromRow][fromCol])) {
+            if (!isValidPawnMove(fromRow, fromCol, toRow, toCol)) {
+                return;
+            }
+        } else if (dynamic_cast<Queen*>(board[fromRow][fromCol])) {
+            if (!isValidQueenMove(fromRow, fromCol, toRow, toCol)) {
+                return;
+            }
         }
-        //bicie figur (jeszcze dawanie szacha nie dziala)
         if(board[toRow][toCol] == nullptr){
         	std::swap(board[fromRow][fromCol], board[toRow][toCol]);
 		}else{
 			delete board[toRow][toCol];
 			board[toRow][toCol] = nullptr;
 			std::swap(board[fromRow][fromCol], board[toRow][toCol]);
-		}
+		}	
     }
 private:
-	//przenies te boole isvalid do classow i potem po prostu wywoluj, bedzie latwiej i szybciej, to chyba jednak nie ma sensu bo bym musial i do bialych i do czarnych (do przemyslenia)
     ChessPiece* board[8][8] = { nullptr };
-    //bo w teorii rusza sie 2 do przodu w 4 strony do okola siebie, pionowo, poziomo, potem jedno w lewo prawo
-    bool isValidKnightMove(int fromRow, int fromCol, int toRow, int toCol) const {
-    	
+    bool isValidPawnMove(int fromRow, int fromCol, int toRow, int toCol) const {
+    	int rowDir = (toRow > fromRow) ? 1 : -1;
+        int colDir = (toCol > fromCol) ? 1 : -1;  
+    	for (int i = 1; i < abs(toRow - fromRow); ++i) {
+            if (board[fromRow + i * rowDir][fromCol + i * colDir] != nullptr) {
+                return false;
+            }
+        }
+        return true;
     }
-    //jedno w kazda strone do okola siebie (nie zapomniec o ruchach na ukos)
+	bool isValidKnightMove(int fromRow, int fromCol, int toRow, int toCol) const {
+		int rowDir = (toRow > fromRow) ? 1 : -1;
+        int colDir = (toCol > fromCol) ? 1 : -1;  
+    	for (int i = 1; i < abs(toRow - fromRow); ++i) {
+            if (board[fromRow + i * rowDir][fromCol + i * colDir] != nullptr) {
+                return false;
+            }
+        }
+        return true;
+    }
     bool isValidKingMove(int fromRow, int fromCol, int toRow, int toCol) const {
-    	
+    	int rowDir = (toRow > fromRow) ? 1 : -1;
+        int colDir = (toCol > fromCol) ? 1 : -1;  
+    	for (int i = 1; i < abs(toRow - fromRow); ++i) {
+            if (board[fromRow + i * rowDir][fromCol + i * colDir] != nullptr) {
+                return false;
+            }
+        }
+        return true;
     }
-    //bishop+rook implementacja 
     bool isValidQueenMove(int fromRow, int fromCol, int toRow, int toCol) const {
-    	
+    	int rowDir = (toRow > fromRow) ? 1 : -1;
+        int colDir = (toCol > fromCol) ? 1 : -1;  
+    	for (int i = 1; i < abs(toRow - fromRow); ++i) {
+            if (board[fromRow + i * rowDir][fromCol + i * colDir] != nullptr) {
+                return false;
+            }
+        }
+        return true;
     }
     bool isValidBishopMove(int fromRow, int fromCol, int toRow, int toCol) const {
         if (abs(toRow - fromRow) != abs(toCol - fromCol)) {
